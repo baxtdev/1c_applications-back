@@ -1,6 +1,6 @@
 from rest_framework import viewsets,permissions
 
-from api.mixins import UltraSupperViewSet
+from api.mixins import UltraSupperViewSet,MultipleDestroyMixinSerializer
 
 from .serializers import Application,ApplicationSerializer,ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
     ApplicationPayment,ApplicationPaymentSerializer,ApplicationReconciliators,ApplicationReconciliatorsSerializer
@@ -13,6 +13,7 @@ class ApplicationViewSet(UltraSupperViewSet):
     serializer_class = ApplicationSerializer
     serializer_classes = {
         'list': ApplicationSerializer,
+        'multiple_delete':MultipleDestroyMixinSerializer
     }
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['status','importance','contract_number']   
@@ -37,6 +38,10 @@ class ApplicationTotalAmountViewSet(UltraSupperViewSet):
         'create': [permissions.IsAuthenticated],
         'destroy': [permissions.IsAdminUser],
     }
+    serializer_classes = {
+        'list': ApplicationTotalAmountSerializer,
+        'multiple_delete':MultipleDestroyMixinSerializer
+    }
 
 
 
@@ -51,9 +56,11 @@ class ApplicationPaymentViewSet(UltraSupperViewSet):
         'list': [permissions.IsAuthenticated],
         'create': [permissions.IsAuthenticated],
         'destroy': [permissions.IsAdminUser],
+        
     }
     serializer_classes  = {
         'list': ApplicationPaymentSerializer,
+        'multiple_delete':MultipleDestroyMixinSerializer
     }
 
 
@@ -71,5 +78,6 @@ class ApplicationReconciliatorsViewSet(UltraSupperViewSet):
     }
     serializer_classes  = {
         'list': ApplicationReconciliatorsSerializer,
+        'multiple_delete':MultipleDestroyMixinSerializer
     }
 

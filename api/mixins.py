@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import SearchFilter,OrderingFilter
+from drf_yasg.inspectors import SwaggerAutoSchema
+
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -187,7 +189,7 @@ class MultipleCreateMixin:
     
 
 class MultipleUpdateMixin:
-    @action(detail=False, methods=['post'], url_path='multiple-update')
+    @action(detail=False, methods=['put'], url_path='multiple-update')
     def multiple_update(self, request):
         if not isinstance(request.data, list):
             return Response(
@@ -236,12 +238,14 @@ class SuperModelViewSet(MultipleDeleteMixin,PermissoinsIsAdminUser,ModelViewSet)
         return super().filter_queryset(queryset).distinct()
 
 
+
 class UltraSupperViewSet(MultipleDeleteMixin,MultipleCreateMixin,MultipleUpdateMixin,PermissoinsIsAdminUser,SerializersByAction,ModelViewSet):    
     filter_backends = [DjangoFilterBackend,
                        SearchFilter,OrderingFilter]
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset).distinct()
     
+
 class SingularViewSet(mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       mixins.ListModelMixin,  
