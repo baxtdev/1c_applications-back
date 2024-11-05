@@ -29,6 +29,7 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
         'list': [permissions.IsAdminUser],
         'create': [permissions.IsAdminUser],
         'destroy': [permissions.IsAdminUser],
+        'change_status': [permissions.IsAuthenticated]
     }
 
     
