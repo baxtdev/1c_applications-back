@@ -16,7 +16,6 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': (
             'username',
-            'phone',
             'password',
         )}),
         (_('Personal info'), {'fields': (
@@ -32,7 +31,6 @@ class UserAdmin(BaseUserAdmin):
             'is_superuser',
             'groups',
             'user_permissions',
-            'is_notifications',
         )}),
         (_('Important dates'), {'fields': (
             'date_joined',

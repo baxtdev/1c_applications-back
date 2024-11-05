@@ -1,7 +1,8 @@
 from django.db import models
 
 from apps.utils.models import TimeStampAbstractModel
-from .constants import IMPORTANCE_CHOICE,LOW,MEDIUM,HIGH,STATUS_CHOICE,PRIMARY,CORRECTED,RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED
+from .constants import IMPORTANCE_CHOICE,LOW,MEDIUM,HIGH,STATUS_CHOICE,PRIMARY,CORRECTED,RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,\
+    CONFIRMED, CANCELED
 from apps.user.constants import ROLE_CHOICE,EMPLOYEE
 # Create your models here.
 class Application(TimeStampAbstractModel):
@@ -16,6 +17,12 @@ class Application(TimeStampAbstractModel):
         choices=STATUS_CHOICE,
         default=PRIMARY,
         verbose_name='Статус заявки'
+    )
+    current_status = models.CharField(
+        max_length=255,
+        verbose_name='Текущий статус',
+        choices=RECONCILIATORS_STATUS_CHOICE,
+        default=NOT_CONFIRMED,
     )
     created_date = models.DateTimeField(
         verbose_name='Дата создания заявки',
@@ -41,6 +48,13 @@ class Application(TimeStampAbstractModel):
 
     def __str__(self):
         return f"{self.contract_number}-{self.status}"
+    
+
+    def _to_chek_reconciliations_statuses(self):
+        print("asnonononon")
+        if self.reconciliators.filter(status=CONFIRMED).count()==self.reconciliators.count():
+            print("asdasdasdd")
+            self.current_status = CONFIRMED
     
 
 

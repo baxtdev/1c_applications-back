@@ -28,3 +28,4 @@ RECONCILIATORS_STATUS_CHOICE = (
     (NOT_CONFIRMED, 'Не подтвержден'),
     (CANCELED, 'Отменен'),
 )
+

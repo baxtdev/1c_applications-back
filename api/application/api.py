@@ -1,24 +1,28 @@
-from rest_framework import viewsets,permissions
+from rest_framework import viewsets,permissions,status
+from rest_framework.response import Response
+from rest_framework.decorators import action, permission_classes
+
 
 from api.mixins import UltraSupperViewSet,MultipleDestroyMixinSerializer
 
 from .serializers import Application,ApplicationSerializer,ApplicationCreateSerializer,ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
-    ApplicationPayment,ApplicationPaymentSerializer,ApplicationReconciliators,ApplicationReconciliatorsSerializer
+    ApplicationPayment,ApplicationPaymentSerializer,ApplicationReconciliators,ApplicationReconciliatorsSerializer,ApplicationStatusChange
+from .services import ApplicationService
 
 
 
-
-class ApplicationViewSet(UltraSupperViewSet):
+class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     serializer_classes = {
         'list': ApplicationSerializer,
         'multiple_delete':MultipleDestroyMixinSerializer,
         'multiple_create':ApplicationCreateSerializer,
-        'multiple_update':ApplicationCreateSerializer
+        'multiple_update':ApplicationCreateSerializer,
+        'change_status':ApplicationStatusChange
     }
     permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = ['status','importance','contract_number']   
+    filterset_fields = ['status','importance','contract_number','reconciliators__status']   
     ordering_fields = ['created_at', 'created_date']
     search_fields = ['id', 'initiator', 'contract_number', 'supplier',]
     permission_classes_by_action = {
@@ -27,6 +31,7 @@ class ApplicationViewSet(UltraSupperViewSet):
         'destroy': [permissions.IsAdminUser],
     }
 
+    
 
 class ApplicationTotalAmountViewSet(UltraSupperViewSet):
     queryset = ApplicationTotalAmount.objects.all()
