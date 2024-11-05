@@ -162,6 +162,10 @@ class ApplicationReconciliators(TimeStampAbstractModel):
         blank=True,
         null=True
     )
+    is_current = models.BooleanField(
+        verbose_name='Текущий согласователь',
+        default=False,
+    )
     class Meta:
         verbose_name = 'Согласователь'
         verbose_name_plural = 'Согласователи'

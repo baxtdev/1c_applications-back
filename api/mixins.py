@@ -18,6 +18,7 @@ from apps.utils.drf_constans import USE_PAGINATION
 from apps.utils.utils import make_bool
 
 from .permissions import IsSuperAdmin
+from api.application.serializers import ApplicationSerializer,ApplicationCreateSerializer
 
 class SwappableSerializerMixin(object):
     def get_serializer_class(self):
@@ -180,7 +181,8 @@ class MultipleCreateMixin:
         if not isinstance(request.data,list):
             return Response({'detail': 'Данные должны быть в виде массива или списка.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = self.get_serializer(data=request.data, many=True)
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
