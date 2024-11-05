@@ -6,7 +6,10 @@ from rest_framework.decorators import action, permission_classes
 from api.mixins import UltraSupperViewSet,MultipleDestroyMixinSerializer
 
 from .serializers import Application,ApplicationSerializer,ApplicationCreateSerializer,ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
-    ApplicationPayment,ApplicationPaymentSerializer,ApplicationReconciliators,ApplicationReconciliatorsSerializer,ApplicationStatusChange
+    ApplicationPayment,ApplicationPaymentSerializer,ApplicationCreatePaymentSerializer,\
+    ApplicationReconciliators,ApplicationReconciliatorsSerializer,ApplicationReconciliatorsCreateSerializer,\
+    ApplicationStatusChange,ApplicationTotalAmountCreateSerializer\
+    
 from .services import ApplicationService
 
 
@@ -36,7 +39,7 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
 
 class ApplicationTotalAmountViewSet(UltraSupperViewSet):
     queryset = ApplicationTotalAmount.objects.all()
-    serializer_class = ApplicationTotalAmountSerializer 
+    serializer_class = ApplicationTotalAmountCreateSerializer 
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['application']
     ordering_fields = ['total_amount']
@@ -47,7 +50,7 @@ class ApplicationTotalAmountViewSet(UltraSupperViewSet):
         'destroy': [permissions.IsAdminUser],
     }
     serializer_classes = {
-        'list': ApplicationTotalAmountSerializer,
+        'list': ApplicationTotalAmountCreateSerializer,
         'multiple_delete':MultipleDestroyMixinSerializer
     }
 
@@ -55,7 +58,7 @@ class ApplicationTotalAmountViewSet(UltraSupperViewSet):
 
 class ApplicationPaymentViewSet(UltraSupperViewSet):
     queryset = ApplicationPayment.objects.all()
-    serializer_class = ApplicationPaymentSerializer
+    serializer_class = ApplicationCreatePaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['application']
     ordering_fields = ['payment_date', 'payment_amount']
@@ -67,14 +70,14 @@ class ApplicationPaymentViewSet(UltraSupperViewSet):
         
     }
     serializer_classes  = {
-        'list': ApplicationPaymentSerializer,
+        'list': ApplicationCreatePaymentSerializer,
         'multiple_delete':MultipleDestroyMixinSerializer
     }
 
 
 class ApplicationReconciliatorsViewSet(UltraSupperViewSet):
     queryset = ApplicationReconciliators.objects.all()
-    serializer_class = ApplicationReconciliatorsSerializer
+    serializer_class = ApplicationReconciliatorsCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['application','user','user__role','role']
     ordering_fields = ['id']
@@ -85,7 +88,7 @@ class ApplicationReconciliatorsViewSet(UltraSupperViewSet):
         'destroy': [permissions.IsAdminUser],
     }
     serializer_classes  = {
-        'list': ApplicationReconciliatorsSerializer,
+        'list': ApplicationReconciliatorsCreateSerializer,
         'multiple_delete':MultipleDestroyMixinSerializer
     }
 

@@ -15,11 +15,22 @@ class ApplicationPaymentSerializer(serializers.ModelSerializer):
         exclude = ['application']
 
 
+class ApplicationCreatePaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationPayment
+        fields = '__all__'
+
+
 class ApplicationReconciliatorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationReconciliators
         exclude = ['application']
 
+
+class ApplicationReconciliatorsCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationReconciliators
+        fields = '__all__'
 
 class ApplicationTotalAmountSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,10 +38,16 @@ class ApplicationTotalAmountSerializer(serializers.ModelSerializer):
         exclude = ['application']
 
 
+class ApplicationTotalAmountCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationTotalAmount
+        fields = '__all__'
+
+
 class ApplicationSerializer(WritableNestedModelSerializer):
-    payments = ApplicationPaymentSerializer(many=True,required=True)
+    payments = ApplicationPaymentSerializer(many=True,required=False)
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
-    total_amounts = ApplicationTotalAmountSerializer(many=True,required=True)
+    total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     class Meta:
         model = Application
         fields = '__all__'
