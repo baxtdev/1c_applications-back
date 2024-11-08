@@ -29,6 +29,7 @@ urlpatterns = [
     path('accounts/', include('rest_framework.urls')), 
     path('api/v1/', include(api_urls)),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('', RedirectView.as_view(url='/api/v1/swagger/')),
 ]
 
 if settings.DEBUG:
