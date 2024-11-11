@@ -1,24 +1,34 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount
+from .models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount,ApplicationDocument
 
 
 
 class ApplicationPaymentInline(admin.TabularInline):
     model = ApplicationPayment
     extra = 0
+    show_change_link = True
+
 
 
 class ApplicationReconciliatorsInline(admin.TabularInline):
     model = ApplicationReconciliators
     extra = 0
+    show_change_link = True
+
 
 
 class ApplicationTotalAmountInline(admin.StackedInline):
     model = ApplicationTotalAmount
     extra = 0
+    show_change_link = True
 
+
+class ApplicationDocumentInline(admin.TabularInline):
+    model = ApplicationDocument
+    extra = 0
+    show_change_link = True
 
 
 
@@ -29,7 +39,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_display_links = ('id','importance','contract_number')
     search_fields = ('supplier', 'initiator', 'contract_number')
     ordering = ['created_date']
-    inlines = [ApplicationTotalAmountInline,ApplicationPaymentInline, ApplicationReconciliatorsInline]
+    inlines = [ApplicationTotalAmountInline,ApplicationPaymentInline, ApplicationReconciliatorsInline,ApplicationDocumentInline]
 
 
 @admin.register(ApplicationPayment)
@@ -57,5 +67,8 @@ class ApplicationTotalAmountAdmin(admin.ModelAdmin):
     ordering = ['application','id']
 
 
-
+@admin.register(ApplicationDocument)
+class ApplicationDocumentAdmin(admin.ModelAdmin):
+    list_display = ('id','document_name','document')
+    search_fields = ('document','document_name')
 

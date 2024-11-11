@@ -6,6 +6,12 @@ from .constants import IMPORTANCE_CHOICE,LOW,MEDIUM,HIGH,STATUS_CHOICE,PRIMARY,C
 from apps.user.constants import ROLE_CHOICE,EMPLOYEE
 # Create your models here.
 class Application(TimeStampAbstractModel):
+    application_type = models.CharField(
+        verbose_name="тип заявки",
+        max_length=300,
+        blank=True,
+        null=True
+    )
     importance = models.CharField(
         max_length=255,
         choices=IMPORTANCE_CHOICE,
@@ -187,3 +193,31 @@ class ApplicationReconciliators(TimeStampAbstractModel):
 
     def __str__(self):
         return f"{self.application.contract_number}-{self.user}"
+
+
+class ApplicationDocument(TimeStampAbstractModel):
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name="documents",
+        verbose_name="заявка"
+    )
+    document_name = models.CharField(
+        verbose_name="Название файла",
+        blank=True,
+        null=True,
+        max_length=250
+    )
+    document = models.FileField(
+        verbose_name="Документ (файл)",
+        upload_to="application/documents/",
+    )
+
+    class Meta:
+        verbose_name = "Документ заявок"
+        verbose_name_plural = "Документы заявок"
+        ordering = ['-id']
+
+    def __str__(self):
+        return f"{self.document.name}"   
+     

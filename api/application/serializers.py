@@ -2,12 +2,14 @@ from django.db.transaction import atomic
 
 from rest_framework import serializers
 
+from django_base64field.fields import Base64Field
+
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 from apps.application.models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount,\
-    RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,CONFIRMED,CANCELED
+    RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,CONFIRMED,CANCELED,ApplicationDocument
 from apps.utils.utils import get_filter_object_or_none
-
+from apps.utils.fields import Base64FileField
 
 class ApplicationPaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,10 +46,25 @@ class ApplicationTotalAmountCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ApplicationDocumentSerializer(serializers.ModelSerializer):
+    document = Base64FileField()
+    class Meta:
+        model = ApplicationDocument
+        exclude = ['application']
+
+
+
+class ApplicationDocumentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationDocument
+        fields = '__all__'
+
+
 class ApplicationSerializer(WritableNestedModelSerializer):
     payments = ApplicationPaymentSerializer(many=True,required=False)
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
+    documents = ApplicationDocumentSerializer(many=True,required=False)
     class Meta:
         model = Application
         fields = '__all__'
@@ -57,6 +74,7 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
     payments = ApplicationPaymentSerializer(many=True,required=True)
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=True)
+    documents = ApplicationDocumentSerializer(many=True,required=False)
     
     class Meta:
         model = Application
@@ -67,6 +85,7 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         payments = validated_data.pop('payments')
         reconciliators = validated_data.pop('reconciliators')
         total_amounts = validated_data.pop('total_amounts')
+        documents = validated_data.pop('documents')
         application = Application.objects.create(**validated_data)
         
         for payment in payments:
@@ -78,6 +97,8 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         for total_amount in total_amounts:    
             application.total_amounts.create(**total_amount)
 
+        for document in documents:
+            application.documents.create(**document)
        
         return application
 
