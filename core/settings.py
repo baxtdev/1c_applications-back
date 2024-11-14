@@ -224,20 +224,21 @@ EMAIL_HOST_PASSWORD = os.getenv('EM_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+DEF_PATH_KEY = '/Users/macpro2019/frilance/1c_applications-back/firebase_key.json'
 
-# cred = credentials.Certificate(os.getenv("DEF_PATH_KEY"))
+cred = credentials.Certificate(os.getenv("DEF_PATH_KEY",DEF_PATH_KEY))
     
-# FIREBASE_APP = initialize_app(cred)
+FIREBASE_APP = initialize_app(cred)
 
-# FCM_DJANGO_SETTINGS = {
-#     "DEFAULT_FIREBASE_APP": None,
+FCM_DJANGO_SETTINGS = {
+    "DEFAULT_FIREBASE_APP": None,
 
-#     "APP_VERBOSE_NAME": 'Система уведомлении',
+    "APP_VERBOSE_NAME": 'Система уведомлении',
 
-#     "ONE_DEVICE_PER_USER": False,
+    "ONE_DEVICE_PER_USER": False,
 
-#     "DELETE_INACTIVE_DEVICES": False,
-# }
+    "DELETE_INACTIVE_DEVICES": False,
+}
 
 
 REDIS_HOST = os.getenv('REDIS_HOST')
