@@ -142,7 +142,7 @@ class ResetPasswordAPIView(ResetPasswordService,GenericAPIView):
 
 
 class UserModelViewSet(UserModelService,SuperModelViewSet):
-    queryset = User.objects.all().prefetch_related('client','client__bonus_card','employees','employees__position')
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend,
                        filters.OrderingFilter,
