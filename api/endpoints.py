@@ -8,7 +8,7 @@ from .application.endpoints import urlpatterns as application_urls
 
 urlpatterns=[
     path('',include(users_urls)),
-    # path('auth/', include(auth_urls)),
+    path('accounts/', include(auth_urls)),
     path('', include(application_urls)), 
 ]
 
