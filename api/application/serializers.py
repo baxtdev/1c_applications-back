@@ -10,6 +10,7 @@ from apps.application.models import Application,ApplicationPayment,ApplicationRe
     RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,CONFIRMED,CANCELED,ApplicationDocument
 from apps.utils.utils import get_filter_object_or_none
 from apps.utils.fields import Base64FileField
+from apps.utils.serializers import ShortDescUserSerializer
 
 class ApplicationPaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,6 +25,13 @@ class ApplicationCreatePaymentSerializer(serializers.ModelSerializer):
 
 
 class ApplicationReconciliatorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationReconciliators
+        exclude = ['application']
+
+
+class ApplicationReconciliatorsListSerializer(serializers.ModelSerializer):
+    user = ShortDescUserSerializer()
     class Meta:
         model = ApplicationReconciliators
         exclude = ['application']
@@ -68,6 +76,18 @@ class ApplicationSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Application
         fields = '__all__'
+
+
+
+class ApplicationListSerializer(WritableNestedModelSerializer):
+    payments = ApplicationPaymentSerializer(many=True,required=False)
+    reconciliators = ApplicationReconciliatorsListSerializer(many=True,required=True)
+    total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
+    documents = ApplicationDocumentSerializer(many=True,required=False)
+    class Meta:
+        model = Application
+        fields = '__all__'
+
 
 
 class ApplicationCreateSerializer(serializers.ModelSerializer):

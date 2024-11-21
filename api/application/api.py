@@ -5,7 +5,8 @@ from rest_framework.decorators import action, permission_classes
 
 from api.mixins import UltraSupperViewSet,MultipleDestroyMixinSerializer
 
-from .serializers import Application,ApplicationSerializer,ApplicationCreateSerializer,ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
+from .serializers import Application,ApplicationSerializer,ApplicationCreateSerializer,ApplicationListSerializer,\
+    ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
     ApplicationPayment,ApplicationPaymentSerializer,ApplicationCreatePaymentSerializer,\
     ApplicationReconciliators,ApplicationReconciliatorsSerializer,ApplicationReconciliatorsCreateSerializer,\
     ApplicationStatusChange,ApplicationTotalAmountCreateSerializer\
@@ -18,7 +19,8 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     serializer_classes = {
-        'list': ApplicationSerializer,
+        'list': ApplicationListSerializer,
+        'retrieve':ApplicationListSerializer,
         'multiple_delete':MultipleDestroyMixinSerializer,
         'multiple_create':ApplicationCreateSerializer,
         'multiple_update':ApplicationCreateSerializer,
