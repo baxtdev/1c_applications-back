@@ -12,6 +12,7 @@ from .serializers import Application,ApplicationSerializer,ApplicationCreateSeri
     ApplicationStatusChange,ApplicationTotalAmountCreateSerializer\
     
 from .services import ApplicationService
+from ..permissions import IsMainEmployee
 
 
 
@@ -26,18 +27,16 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
         'multiple_update':ApplicationCreateSerializer,
         'change_status':ApplicationStatusChange
     }
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated | IsMainEmployee]
     filterset_fields = ['status','importance','contract_number','reconciliators__status']   
     ordering_fields = ['created_at', 'created_date']
     search_fields = ['id', 'initiator', 'contract_number', 'supplier',]
     permission_classes_by_action = {
-        'list': [permissions.IsAdminUser],
-        'create': [permissions.IsAdminUser],
-        'destroy': [permissions.IsAdminUser],
+        'list': [permissions.IsAuthenticated],
+        'create': [IsMainEmployee],
+        'destroy': [IsMainEmployee],
         'change_status': [permissions.IsAuthenticated]
     }
-
-    
 
 class ApplicationTotalAmountViewSet(UltraSupperViewSet):
     queryset = ApplicationTotalAmount.objects.all()

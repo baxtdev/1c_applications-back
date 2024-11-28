@@ -15,3 +15,12 @@ class ApplicationService:
             return Response({"detail":"Статус успешно изменен",**application_data}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        if user.role == 'OBSERVER':
+            return queryset.filter(reconciliators__user__in=[self.request.user])
+        
+        return queryset.filter(reconciliators__user=self.request.user,reconciliators__is_current=True)  

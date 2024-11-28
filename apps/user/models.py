@@ -11,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from apps.utils.models import TimeStampAbstractModel
 from apps.utils.utils import generate_code,generate_string_code,generate_barcode
 from .managers import UserManager
-from .constants import ROLE_CHOICE,EMPLOYEE,ADMIN,OBSERVER
+from .constants import ROLE_CHOICE,EMPLOYEE,ADMIN,OBSERVER,MAIN_EMPLOYEE
 
 
 class User(AbstractUser):
