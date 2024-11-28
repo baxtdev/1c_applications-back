@@ -20,6 +20,9 @@ class ApplicationService:
         queryset = super().get_queryset()
         user = self.request.user
         
+        if user.is_superuser:
+            return queryset
+
         if user.role == 'OBSERVER':
             return queryset.filter(reconciliators__user__in=[self.request.user])
         
