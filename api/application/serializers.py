@@ -73,9 +73,17 @@ class ApplicationSerializer(WritableNestedModelSerializer):
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     documents = ApplicationDocumentSerializer(many=True,required=False)
+    total_price_without_VAT = serializers.FloatField()
+    total_price = serializers.FloatField()
+    total_rate_VAT = serializers.FloatField()
+    total_amount_VAT = serializers.FloatField()
+    remaining_amount = serializers.FloatField()
+    paid_amount = serializers.FloatField()
     class Meta:
         model = Application
         fields = '__all__'
+        read_only_fields = ('total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT','remaining_amount','paid_amount')
+
 
 
 
@@ -84,9 +92,16 @@ class ApplicationListSerializer(WritableNestedModelSerializer):
     reconciliators = ApplicationReconciliatorsListSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     documents = ApplicationDocumentSerializer(many=True,required=False)
+    total_price_without_VAT = serializers.FloatField()
+    total_price = serializers.FloatField()
+    total_rate_VAT = serializers.FloatField()
+    total_amount_VAT = serializers.FloatField()
+    remaining_amount = serializers.FloatField()
+    paid_amount = serializers.FloatField()
     class Meta:
         model = Application
         fields = '__all__'
+        read_only_fields = ('total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT','remaining_amount','paid_amount')
 
 
 
@@ -95,10 +110,17 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=True)
     documents = ApplicationDocumentSerializer(many=True,required=False)
-    
+    total_price_without_VAT = serializers.FloatField()
+    total_price = serializers.FloatField()
+    total_rate_VAT = serializers.FloatField()
+    total_amount_VAT = serializers.FloatField()
+    remaining_amount = serializers.FloatField()
+    paid_amount = serializers.FloatField()
     class Meta:
         model = Application
         fields = '__all__'
+        read_only_fields = ('total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT','remaining_amount','paid_amount')
+
 
     @atomic
     def create(self, validated_data):

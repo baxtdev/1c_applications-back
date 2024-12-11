@@ -61,7 +61,39 @@ class Application(TimeStampAbstractModel):
         if self.reconciliators.filter(status=CONFIRMED).count()==self.reconciliators.count():
             print("asdasdasdd")
             self.current_status = CONFIRMED
-    
+    @property
+    def total_price(self):
+        return sum(amount.price for amount in self.total_amounts.all())
+    total_price.fget.short_description = "Общая цена"
+
+    @property
+    def total_price_without_VAT(self):
+        return sum(amount.price_without_VAT for amount in self.total_amounts.all())
+        # return sum(amount.price for amount in self.total_amounts.all()) * (1 - sum(amount.VAT_rate for amount in self.total_amounts.all())/100)
+        # return sum(amount.price * (1 - amount.VAT_rate/100) for amount in self.total_amounts.all())
+
+    total_price_without_VAT.fget.short_description = "Общая цена без НДС"
+
+    @property
+    def total_rate_VAT(self):
+        return sum(amount.VAT_rate for amount in self.total_amounts.all())
+
+    total_rate_VAT.fget.short_description = "Общая ставка НДС"
+
+    @property
+    def total_amount_VAT(self):
+        return sum(amount.VAT_amount for amount in self.total_amounts.all())
+    total_amount_VAT.fget.short_description = "Общая сумма НДС"
+
+    @property
+    def remaining_amount(self):
+        return self.total_price - sum(payment.payment_amount for payment in self.payments.all())
+    remaining_amount.fget.short_description = "Оставшая сумма"
+
+    @property
+    def paid_amount(self):
+        return sum(payment.payment_amount for payment in self.payments.all())
+    paid_amount.fget.short_description = "Сумма оплаты"
 
 
 class ApplicationTotalAmount(TimeStampAbstractModel):
@@ -116,6 +148,9 @@ class ApplicationTotalAmount(TimeStampAbstractModel):
     def __str__(self):
         return f"{self.application.contract_number}-{self.budget_code}"
     
+    @property
+    def price_without_VAT(self):
+        return self.price * (1 - self.VAT_rate/100)
 
 
 class ApplicationPayment(TimeStampAbstractModel):
@@ -145,6 +180,20 @@ class ApplicationPayment(TimeStampAbstractModel):
 
     def __str__(self):
         return f"{self.application.contract_number}-{self.payment_percentage_amount}"   
+
+    @property
+    def payment_amount(self):
+        return self.payment_percentage_amount * self.application.total_price / 100
+    payment_amount.fget.short_description = "Сумма"
+
+    @property
+    def remaining_amount(self):
+        return self.application.remaining_amount
+    
+    @property
+    def paid_amount(self):
+        return self.application.paid_amount
+
 
 
 

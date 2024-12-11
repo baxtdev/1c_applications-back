@@ -9,6 +9,7 @@ class ApplicationPaymentInline(admin.TabularInline):
     model = ApplicationPayment
     extra = 0
     show_change_link = True
+    readonly_fields = ['payment_amount']
 
 
 
@@ -34,11 +35,12 @@ class ApplicationDocumentInline(admin.TabularInline):
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('id','contract_number','importance', 'status', 'created_date', 'supplier', 'initiator',)
+    list_display = ('id','contract_number', 'status','total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT')
     list_filter = ('importance', 'status', 'created_date')
-    list_display_links = ('id','importance','contract_number')
+    list_display_links = ('id','contract_number')
     search_fields = ('supplier', 'initiator', 'contract_number')
     ordering = ['created_date']
+    readonly_fields = ['remaining_amount','total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT','paid_amount']
     inlines = [ApplicationTotalAmountInline,ApplicationPaymentInline, ApplicationReconciliatorsInline,ApplicationDocumentInline]
 
 
