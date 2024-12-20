@@ -13,8 +13,8 @@ from apps.utils.fields import Base64FileField
 from apps.utils.serializers import ShortDescUserSerializer
 
 class ApplicationPaymentSerializer(serializers.ModelSerializer):
-    payment_amount = serializers.FloatField()
-    remaining_amount = serializers.FloatField()
+    payment_amount = serializers.FloatField(read_only=True)
+    remaining_amount = serializers.FloatField(read_only=True)
     class Meta:
         model = ApplicationPayment
         exclude = ['application']
@@ -22,8 +22,8 @@ class ApplicationPaymentSerializer(serializers.ModelSerializer):
 
 
 class ApplicationCreatePaymentSerializer(serializers.ModelSerializer):
-    payment_amount = serializers.FloatField()
-    remaining_amount = serializers.FloatField()
+    payment_amount = serializers.FloatField(read_only=True)
+    remaining_amount = serializers.FloatField(read_only=True)
     class Meta:
         model = ApplicationPayment
         fields = '__all__'
