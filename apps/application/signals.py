@@ -26,7 +26,8 @@ def update_reconciliators_sequence_hierarchy(sender, instance:ApplicationReconci
     
     if instance.status == CONFIRMED:
         instance.is_current = False
-        next_reconciliators = instance.application.reconciliators.filter(sequence_hierarchy__gt=instance.sequence_hierarchy).first()
+        next_reconciliators = instance.application.reconciliators.filter(
+            sequence_hierarchy__gt=instance.sequence_hierarchy).order_by('sequence_hierarchy').first()
         if next_reconciliators:
             next_reconciliators.is_current = True
             next_reconciliators.save(update_fields=['is_current'])    
