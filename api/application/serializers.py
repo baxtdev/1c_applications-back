@@ -80,12 +80,12 @@ class ApplicationSerializer(WritableNestedModelSerializer):
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     documents = ApplicationDocumentSerializer(many=True,required=False)
-    total_price_without_VAT = serializers.FloatField()
-    total_price = serializers.FloatField()
-    total_rate_VAT = serializers.FloatField()
-    total_amount_VAT = serializers.FloatField()
-    remaining_amount = serializers.FloatField()
-    paid_amount = serializers.FloatField()
+    total_price_without_VAT = serializers.FloatField(read_only=True)
+    total_price = serializers.FloatField(read_only=True)
+    total_rate_VAT = serializers.FloatField(read_only=True)
+    total_amount_VAT = serializers.FloatField(read_only=True)
+    remaining_amount = serializers.FloatField(read_only=True)
+    paid_amount = serializers.FloatField(read_only=True)
     class Meta:
         model = Application
         fields = '__all__'
