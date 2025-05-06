@@ -7,7 +7,7 @@ from django_base64field.fields import Base64Field
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 from apps.application.models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount,\
-    RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,CONFIRMED,CANCELED,ApplicationDocument
+    RECONCILIATORS_STATUS_CHOICE,NOT_CONFIRMED,CONFIRMED,CANCELED,ApplicationDocument,ApplicationPurchaseReconciliators,ApplicactionMaterial
 from apps.utils.utils import get_filter_object_or_none
 from apps.utils.fields import Base64FileField
 from apps.utils.serializers import ShortDescUserSerializer
@@ -75,11 +75,38 @@ class ApplicationDocumentCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ApplicationPurchaseReconciliatorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationPurchaseReconciliators
+        exclude = ['application']
+
+
+class ApplicationPurchaseReconciliatorsCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationPurchaseReconciliators
+        fields = '__all__'
+
+
+class ApplicactionMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicactionMaterial
+        exclude = ['application']
+
+
+class ApplicactionMaterialCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicactionMaterial
+        fields = '__all__'
+
+
+
 class ApplicationSerializer(WritableNestedModelSerializer):
     payments = ApplicationPaymentSerializer(many=True,required=False)
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     documents = ApplicationDocumentSerializer(many=True,required=False)
+    materials = ApplicactionMaterialSerializer(many=True,required=False)
+    purchase_reconciliations = ApplicationPurchaseReconciliatorsSerializer(many=True,required=False)
     total_price_without_VAT = serializers.FloatField(read_only=True)
     total_price = serializers.FloatField(read_only=True)
     total_rate_VAT = serializers.FloatField(read_only=True)
@@ -198,6 +225,51 @@ class ApplicationStatusChange(serializers.Serializer):
             application_reconciliators = application.reconciliators.filter(user=user).first()
             application_reconciliators_not_confirmed = application.reconciliators.filter(
                 status__in=[NOT_CONFIRMED,CANCELED],
+                sequence_hierarchy__lt=application_reconciliators.sequence_hierarchy,
+            )
+            if application.purchase_reconciliations_status in [NOT_CONFIRMED,CANCELED]:
+                raise serializers.ValidationError({'application':'Необходимо подтвердить заявку для закупа'})
+            
+            if application_reconciliators_not_confirmed.exists():
+                raise serializers.ValidationError({'application':'Необходимо подтвердить заявку другие согласователи'})
+            
+            if application_reconciliators.status == attrs.get('status'):
+                raise serializers.ValidationError({'status':'Статус заявки уже установлен'})
+
+            attrs['application_reconciliators']=application_reconciliators
+            return super().validate(attrs)
+            
+       except AttributeError:
+           raise serializers.ValidationError({'detail':'Вы не являетесь администратором данного приложения'})   
+          
+   def create(self, validated_data):
+       application_reconciliators = validated_data.get('application_reconciliators')
+       status = validated_data.get('status')
+       application = validated_data.get('application')
+       application_reconciliators.status = status
+       application_reconciliators.save()
+       return application
+       
+
+class ApplicationPurchaseStatusChange(serializers.Serializer):
+   application = serializers.PrimaryKeyRelatedField(
+        queryset=Application.objects.all(),
+        required=True,
+   )
+   status = serializers.ChoiceField(choices=RECONCILIATORS_STATUS_CHOICE, required=True)
+
+   def validate_status(self, value):
+       if value == NOT_CONFIRMED:
+           raise serializers.ValidationError('Нельзя изменить статус на Не подтвержден')
+       return value
+   
+   def validate(self, attrs):
+       user = self.context['request'].user
+       application = attrs.get('application')
+       try: 
+            application_reconciliators = application.purchase_reconciliations.filter(user=user).first()
+            application_reconciliators_not_confirmed = application.purchase_reconciliations.filter(
+                status__in=[NOT_CONFIRMED,CANCELED],
                 sequence_hierarchy__lt=application_reconciliators.sequence_hierarchy
             )
             if application_reconciliators_not_confirmed.exists():
@@ -221,3 +293,44 @@ class ApplicationStatusChange(serializers.Serializer):
        return application
        
 
+
+class ApplicactionMaterialCancelSerializer(serializers.Serializer):
+    material = serializers.PrimaryKeyRelatedField(
+        queryset = ApplicactionMaterial.objects.all(),
+        required=True
+    )
+    quantity_agreed = serializers.FloatField(required=True)
+
+
+    def validate_material(self,value):
+        user = self.context['request'].user
+        if not value.application.purchase_reconciliations.filter(user=user,is_current=True).exists():
+            raise serializers.ValidationError("Этот пользователь не имеет права")
+        return value
+    
+
+    def validate(self, attrs):
+        material:ApplicactionMaterial = attrs.get('material')
+        quantity_agreed = attrs.get('quantity_agreed')
+        print(quantity_agreed,material.quantity_agreed)
+        if material.status in [CANCELED]:
+            raise serializers.ValidationError("Материал уже отменено")
+        
+
+        if material.quantity == quantity_agreed:
+            raise serializers.ValidationError("Нельзя отменить заявку с равным количеством")
+        
+        if material.quantity < quantity_agreed:
+            raise serializers.ValidationError("Нельзя отменить заявку с больщим количнством")
+        
+        if quantity_agreed<0:
+            raise serializers.ValidationError("Нельзя отменить заявку с больщим количнством")
+
+        return super().validate(attrs)
+
+
+    def create(self, validated_data):
+        material:ApplicactionMaterial = validated_data.get('material')
+        quantity_agreed = validated_data.get('quantity_agreed')
+        material.cancel_material_for_purchase(quantity_agreed,self.context['request'].user)
+        return material

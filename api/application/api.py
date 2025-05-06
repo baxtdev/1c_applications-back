@@ -9,7 +9,7 @@ from .serializers import Application,ApplicationSerializer,ApplicationCreateSeri
     ApplicationTotalAmount,ApplicationTotalAmountSerializer,\
     ApplicationPayment,ApplicationPaymentSerializer,ApplicationCreatePaymentSerializer,\
     ApplicationReconciliators,ApplicationReconciliatorsSerializer,ApplicationReconciliatorsCreateSerializer,\
-    ApplicationStatusChange,ApplicationTotalAmountCreateSerializer\
+    ApplicationStatusChange,ApplicationTotalAmountCreateSerializer,ApplicationPurchaseStatusChange,ApplicactionMaterialCancelSerializer\
     
 from .services import ApplicationService
 from ..permissions import IsMainEmployee
@@ -25,7 +25,9 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
         'multiple_delete':MultipleDestroyMixinSerializer,
         'multiple_create':ApplicationCreateSerializer,
         'multiple_update':ApplicationCreateSerializer,
-        'change_status':ApplicationStatusChange
+        'change_status':ApplicationStatusChange,
+        'change_purchase_status':ApplicationPurchaseStatusChange,
+        'cancel_material_for_purchase':ApplicactionMaterialCancelSerializer
     }
     permission_classes = [permissions.IsAuthenticated | IsMainEmployee]
     filterset_fields = ['status','importance','contract_number','reconciliators__status']   
@@ -35,7 +37,8 @@ class ApplicationViewSet(ApplicationService,UltraSupperViewSet):
         'list': [permissions.IsAuthenticated],
         'create': [IsMainEmployee],
         'destroy': [IsMainEmployee],
-        'change_status': [permissions.IsAuthenticated]
+        'change_status': [permissions.IsAuthenticated],
+        'change_purchase_status':[permissions.IsAuthenticated]
     }
 
 class ApplicationTotalAmountViewSet(UltraSupperViewSet):

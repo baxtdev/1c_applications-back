@@ -1,7 +1,9 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount,ApplicationDocument
+from .models import (Application,ApplicationPayment,ApplicationReconciliators,
+                     ApplicationTotalAmount,ApplicationDocument,ApplicactionMaterial,
+                     ApplicationPurchaseReconciliators)
 
 
 
@@ -10,7 +12,6 @@ class ApplicationPaymentInline(admin.TabularInline):
     extra = 0
     show_change_link = True
     readonly_fields = ['payment_amount']
-
 
 
 class ApplicationReconciliatorsInline(admin.TabularInline):
@@ -32,6 +33,18 @@ class ApplicationDocumentInline(admin.TabularInline):
     show_change_link = True
 
 
+class ApplicactionMaterialInline(admin.TabularInline):
+    model = ApplicactionMaterial
+    extra = 0
+    show_change_link = True
+
+
+class ApplicationPurchaseReconciliatorsInline(admin.TabularInline):
+    model = ApplicationPurchaseReconciliators
+    extra = 0
+    show_change_link = True
+
+
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
@@ -41,7 +54,9 @@ class ApplicationAdmin(admin.ModelAdmin):
     search_fields = ('supplier', 'initiator', 'contract_number')
     ordering = ['created_date']
     readonly_fields = ['remaining_amount','total_price','total_price_without_VAT','total_rate_VAT','total_amount_VAT','paid_amount']
-    inlines = [ApplicationTotalAmountInline,ApplicationPaymentInline, ApplicationReconciliatorsInline,ApplicationDocumentInline]
+    inlines = [ApplicationTotalAmountInline,ApplicationPaymentInline,
+            ApplicationReconciliatorsInline,ApplicationDocumentInline,
+            ApplicactionMaterialInline,ApplicationPurchaseReconciliatorsInline]
 
 
 @admin.register(ApplicationPayment)
@@ -74,3 +89,11 @@ class ApplicationDocumentAdmin(admin.ModelAdmin):
     list_display = ('id','document_name','document')
     search_fields = ('document','document_name')
 
+
+@admin.register(ApplicactionMaterial)
+class ApplicactionMaterialAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(ApplicationPurchaseReconciliators)
+class ApplicationPurchaseReconciliatorsAdmin(admin.ModelAdmin):
+    pass

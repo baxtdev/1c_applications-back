@@ -29,3 +29,11 @@ RECONCILIATORS_STATUS_CHOICE = (
     (CANCELED, 'Отменен'),
 )
 
+
+SERVICE="SERVICE"
+MATERIAL = "MATERIAL"
+
+MATERIAL_TYPE = (
+    (SERVICE,'Услуга'),
+    (MATERIAL,'Материал')
+)

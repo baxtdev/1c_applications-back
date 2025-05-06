@@ -2,7 +2,9 @@ from django.db.models.signals import post_save,pre_save
 from django.dispatch.dispatcher import receiver
 from django.db.transaction import atomic
 
-from .models import Application,ApplicationPayment,ApplicationReconciliators,ApplicationTotalAmount,CANCELED,CONFIRMED
+from .models import (Application,ApplicationPayment,ApplicationReconciliators,
+                     ApplicationTotalAmount,CANCELED,CONFIRMED,
+                     ApplicationPurchaseReconciliators,ApplicactionMaterial)
 
 @receiver(signal=post_save,sender=ApplicationReconciliators)
 def update_application_status(sender, instance:ApplicationReconciliators, created, **kwargs):
@@ -17,13 +19,22 @@ def update_application_status(sender, instance:ApplicationReconciliators, create
         print("send notification to users")
         pass
     
+@receiver(signal=post_save,sender=ApplicationPurchaseReconciliators)
+def update_application_status(sender, instance:ApplicationPurchaseReconciliators, created, **kwargs):
+    if instance.status == CANCELED:
+        instance.application.current_status =CANCELED
+
+    instance.application._to_chek_purchase_reconciliations_status()
+    instance.application.save(update_fields=['current_status','purchase_reconciliations_status'])
+    print("send request to 1c")
+    
+    if created :
+        print("send notification to users")
+        pass
+
     
 @receiver(signal=pre_save,sender=ApplicationReconciliators)
-def update_reconciliators_sequence_hierarchy(sender, instance:ApplicationReconciliators, **kwargs):
-    if not instance.pk and instance.sequence_hierarchy == 1:
-        instance.is_current = True
-        return 
-    
+def update_reconciliators_sequence_hierarchy(sender, instance:ApplicationReconciliators, **kwargs):    
     if instance.status == CONFIRMED:
         instance.is_current = False
         next_reconciliators = instance.application.reconciliators.filter(
@@ -33,3 +44,31 @@ def update_reconciliators_sequence_hierarchy(sender, instance:ApplicationReconci
             next_reconciliators.save(update_fields=['is_current'])    
         else:
             print("is closed")
+
+
+
+@receiver(signal=pre_save,sender=ApplicationPurchaseReconciliators)
+def update_reconciliators_sequence_hierarchy(sender, instance:ApplicationPurchaseReconciliators, **kwargs):
+    if not instance.pk and instance.sequence_hierarchy == 1:
+        instance.is_current = True
+        return 
+    
+    if instance.status == CONFIRMED:
+        instance.is_current = False
+        next_reconciliators = instance.application.purchase_reconciliations.filter(
+            sequence_hierarchy__gt=instance.sequence_hierarchy).order_by('sequence_hierarchy').first()
+        if next_reconciliators:
+            next_reconciliators.is_current = True
+            next_reconciliators.save(update_fields=['is_current'])    
+        else:
+            print("is closed")
+
+
+
+    
+@receiver(signal=post_save,sender=ApplicactionMaterial)
+def update_reconciliators_sequence_hierarchy(sender, instance:ApplicactionMaterial, **kwargs):    
+    if instance.status == CANCELED:
+        print("ststauasdas")
+        instance.application.current_status = CANCELED
+        instance.application.save(update_fields=['current_status'])
