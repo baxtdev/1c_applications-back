@@ -80,6 +80,11 @@ class ApplicationPurchaseReconciliatorsSerializer(serializers.ModelSerializer):
         model = ApplicationPurchaseReconciliators
         exclude = ['application']
 
+class ApplicationPurchaseReconciliatorsListSerializer(serializers.ModelSerializer):
+    user = ShortDescUserSerializer(read_only=True)
+    class Meta:
+        model = ApplicationPurchaseReconciliators
+        exclude = ['application']
 
 class ApplicationPurchaseReconciliatorsCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,6 +93,12 @@ class ApplicationPurchaseReconciliatorsCreateSerializer(serializers.ModelSeriali
 
 
 class ApplicactionMaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicactionMaterial
+        exclude = ['application']
+
+class ApplicactionMaterialListSerializer(serializers.ModelSerializer):
+    canceled_from_user = ShortDescUserSerializer(read_only=True)
     class Meta:
         model = ApplicactionMaterial
         exclude = ['application']
@@ -124,6 +135,8 @@ class ApplicationSerializer(WritableNestedModelSerializer):
 class ApplicationListSerializer(WritableNestedModelSerializer):
     payments = ApplicationPaymentSerializer(many=True,required=False)
     reconciliators = ApplicationReconciliatorsListSerializer(many=True,required=True)
+    materials = ApplicactionMaterialListSerializer(many=True,required=False)
+    purchase_reconciliations = ApplicationPurchaseReconciliatorsListSerializer(many=True,required=False)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=False)
     documents = ApplicationDocumentSerializer(many=True,required=False)
     total_price_without_VAT = serializers.FloatField()
@@ -142,6 +155,8 @@ class ApplicationListSerializer(WritableNestedModelSerializer):
 class ApplicationCreateSerializer(serializers.ModelSerializer):
     payments = ApplicationPaymentSerializer(many=True,required=True)
     reconciliators = ApplicationReconciliatorsSerializer(many=True,required=True)
+    materials = ApplicactionMaterialSerializer(many=True,required=False)
+    purchase_reconciliations = ApplicationPurchaseReconciliatorsSerializer(many=True,required=False)
     total_amounts = ApplicationTotalAmountSerializer(many=True,required=True)
     documents = ApplicationDocumentSerializer(many=True,required=False)
     total_price_without_VAT = serializers.FloatField()
@@ -163,6 +178,8 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         total_amounts = validated_data.pop('total_amounts')
         documents = validated_data.pop('documents')
         application = Application.objects.create(**validated_data)
+        materials = validated_data.pop('materials')
+        purchase_reconciliations = validated_data.pop('purchase_reconciliations')
         
         for payment in payments:
             application.payments.create(**payment)
@@ -175,6 +192,12 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
         for document in documents:
             application.documents.create(**document)
+        
+        for material in materials:
+            application.materials.create(**material)
+        
+        for purchase_reconciliation in purchase_reconciliations:
+            application.purchase_reconciliations.create(**purchase_reconciliation)
        
         return application
 
